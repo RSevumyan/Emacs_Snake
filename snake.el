@@ -1,6 +1,9 @@
 ;;==============================================================================================================================================================
 ;;====================================================================Snake game================================================================================
 ;;==============================================================================================================================================================
+(defvar snake-position nil)
+(defvar direction nil)
+(defvar snake-timer nil)
 
 (defun snake-game ()
   (interactive)
@@ -16,6 +19,14 @@
   (setq direction 6)
   (create-snake)
   (print-snake)
+  (move-snake-timer)
+  )
+
+(defun move-snake-timer()
+  (when (timerp snake-timer)
+    (cancel-timer snake-timer)
+    )
+  (setq snake-timer (run-with-timer 0.1 0.1 'move-snake))
   )
 
 (defun create-game-box (boxsize)
@@ -67,7 +78,7 @@
     )
   )
 
-(defun move-snake(direction)
+(defun move-snake()
   (delete-snake)
   (let (newposition)
     (if (= direction 2)
@@ -113,22 +124,46 @@
 
 (defun snake-move-up()
   (interactive)
-  (move-snake 8)
+  (if (/= direction 2)
+      (progn
+	(setq direction 8)
+	(move-snake)
+	)
+    )
+  (move-snake-timer)
   )
 
 (defun snake-move-down()
   (interactive)
-  (move-snake 2)
+  (if (/= direction 8)
+      (progn
+	(setq direction 2)
+	(move-snake)
+	)
+    )
+  (move-snake-timer)
   )
 
 (defun snake-move-right()
   (interactive)
-  (move-snake 6)
+  (if (/= direction 4)
+      (progn
+	(setq direction 6)
+	(move-snake)
+	)
+    )
+  (move-snake-timer)
   )
 
 (defun snake-move-left()
   (interactive)
-  (move-snake 4)
+  (if (/= direction 6)
+      (progn
+	(setq direction 4)
+	(move-snake)
+	)
+    )
+  (move-snake-timer)
   )
 
 (defun eat(list)
@@ -144,7 +179,9 @@
   (message "You died")
   )
 
-(define-derived-mode snake-mode special-mode "snake"
+(add-hook 'kill-buffer-hook (lambda () (when (timerp snake-timer) (cancel-timer snake-timer))))
+
+(define-derived-mode snake-mode special-mode "snake-mode"
   (setq inhibit-read-only t)
   (setq cursor-type nil)
   (setq line-spacing 0)
