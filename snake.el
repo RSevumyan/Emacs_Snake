@@ -97,6 +97,7 @@
       (when (> (length snake-position) 1) (delete-snake-lastposition))
       )
     )
+  (message "Your score: %d" (length snake-position))
   )
 
 (defun print-snake()
